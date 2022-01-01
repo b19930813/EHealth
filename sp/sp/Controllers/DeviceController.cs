@@ -43,7 +43,8 @@ namespace sp.Controllers
                        BluetoothVersion = json["BluetoothVersion"].ToString(),
                        Device_Desc = json["Device_Desc"].ToString(),
                        Device_Type = json["Device_Type"].ToString(),
-                       User = user
+                       User = user,
+
                     });
                     await _context.SaveChangesAsync();
                     return Ok(new { status = 200, isSusses = true, message = "加入Device成功" });

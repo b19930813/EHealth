@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using sp.Entities;
 using sp.Model;
@@ -22,17 +23,37 @@ namespace sp.Controllers
 
         [Route("Register")]
         [HttpPost]
-        public async Task<ActionResult> Regiest(User user)
+        public async Task<ActionResult> Regiest([FromBody] object response)
         {
             try
             {
-                int userCount = _context.Users.Count(u => u.Email == user.Email);
+                JObject json = JObject.Parse(response.ToString());
+                int userCount = _context.Users.Count(u => u.Email == json["Email"].ToString());
+
                 if (userCount == 0)
                 {
+                    User user = new User();
+                    user.Email = json["Email"].ToString();
+                    user.Password = json["Password"].ToString();
+                    user.Name = json["Name"].ToString();
+                    user.Phone = json["Phone"].ToString();
+                    user.Sex = json["Sex"].ToString();
                     _context.Users.Add(user);
 
                     await _context.SaveChangesAsync();
-                    return Ok(new { status = 200, isSusses = true, message = $"Register User {user.Name} Success" });
+
+                    _context.Devices.Add(new Device
+                    {
+                        BluetoothIdentifier = json["BluetoothIdentifier"].ToString(),
+                        BluetoothName = json["BluetoothName"].ToString(),
+                        BluetoothVersion = json["BluetoothVersion"].ToString(),
+                        Device_Desc = json["Device_Desc"].ToString(),
+                        Device_Type = json["Device_Type"].ToString(),
+                        User = user,
+                        UserId = user.UserId
+                    });
+                    await _context.SaveChangesAsync();
+                    return Ok(new { status = 200, isSusses = true, message = "OK" });
                 }
                 else
                 {
@@ -56,7 +77,7 @@ namespace sp.Controllers
                 string Email = json["Email"].ToString();
                 string Password = json["Password"].ToString();
 
-                User FindUser = _context.Users.Where(u => u.Email == Email && u.Password == Password).FirstOrDefault();
+                User FindUser = _context.Users.Where(u => u.Email == Email && u.Password == Password).Include(u => u.Devices).FirstOrDefault();
                 if(FindUser != null)
                 {
                     return Ok(new { status = 200, isSusses = true, message = FindUser.UserId  });

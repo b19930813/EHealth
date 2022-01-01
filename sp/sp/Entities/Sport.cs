@@ -11,6 +11,7 @@ namespace sp.Entities
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int SportId { get; set; }
+
         public double Calories { get; set; }
         public int Heart { get; set; }
         public double RunDistance { get; set; }
@@ -18,10 +19,9 @@ namespace sp.Entities
         public string SportName { get; set; }
         public string SportTrace { get; set; }
 
-        [ForeignKey("UserId")]
-        public User User { get; set; }
 
-        [ForeignKey("DeviceId")]
-        public Device Device { get; set; }
+        [ForeignKey("UserId")]
+        public int UserId { get; set; }
+        public User User { get; set; }
     }
 }

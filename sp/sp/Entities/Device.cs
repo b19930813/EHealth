@@ -11,6 +11,7 @@ namespace sp.Entities
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int DeviceId { get; set; }
+
         public string BluetoothName { get; set; }
         public string BluetoothIdentifier { get; set; }
         public string BluetoothVersion { get; set; }
@@ -18,6 +19,7 @@ namespace sp.Entities
         public string Device_Type { get; set; }
 
         [ForeignKey("UserId")]
+        public int UserId { get; set; }
         public User User { get; set; }
     }
 }

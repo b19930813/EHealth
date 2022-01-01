@@ -6,6 +6,7 @@ using sp.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace sp.Controllers
@@ -28,33 +29,32 @@ namespace sp.Controllers
             try
             {
                 JObject json = JObject.Parse(response.ToString());
-                User user = await _context.Users.FindAsync(json["UserId"].ToString());
-                Device device = await _context.Devices.FindAsync(json["DeviceId"].ToString());
-                if (user == null || device == null)
+                User user = await _context.Users.FindAsync(Convert.ToInt32(json["UserId"]));
+
+                if (user == null)
                 {
 
                     return Ok(new { status = 200, isSusses = false, message = "User not found" });
                 }
                 else
                 {
-                    _context.Sports.Add(new Sport
-                    {
-                        SportName = json["SportName"].ToString(),
-                        SportTrace = json["SportTrace"].ToString(),
-                        RunSpeed = Convert.ToDouble(json["RunSpeed"]),
-                        Calories = Convert.ToDouble(json["Calories"]),
-                        Heart = Convert.ToInt32(json["Heart"]),
-                        RunDistance = Convert.ToDouble(json["RunDistance"]),
-                        Device = device,
-                        User = user
-                    });
+                    Sport sport = new Sport();
+                    sport.SportName = json["SportName"].ToString();
+                    sport.SportTrace = json["SportTrace"].ToString();
+                    sport.RunSpeed = Convert.ToDouble(json["RunSpeed"]);
+                    sport.Calories = Convert.ToDouble(json["Calories"]);
+                    sport.Heart = Convert.ToInt32(json["Heart"]);
+                    sport.RunDistance = Convert.ToDouble(json["RunDistance"]);
+                    sport.User = user;
+                    sport.UserId = user.UserId;
+                    _context.Sports.Add(sport);
                     await _context.SaveChangesAsync();
                     return Ok(new { status = 200, isSusses = true, message = "加入運動成功" });
                 }
 
 
             }
-            catch
+            catch (Exception ex)
             {
                 return Ok(new { status = 200, isSusses = false, message = "Register Error" });
             }
@@ -64,10 +64,24 @@ namespace sp.Controllers
         [HttpGet]
         public async Task<ActionResult> SportList(int UserId)
         {
-            User user =  _context.Users.Where(u => u.UserId == UserId).Include(u => u.Sports).FirstOrDefault();
+            User user = _context.Users.Where(u => u.UserId == UserId).Include(u => u.Sports).FirstOrDefault();
             if (user != null)
             {
-                return Ok(new { status = 200, isSusses = true, message = user.Sports.ToArray() });
+
+                return Ok(new
+                {
+                    status = 200,
+                    isSusses = true,
+                    message = user.Sports.Select(s => new
+                    {
+                        Calories = s.Calories ,
+                        Heart = s.Heart,
+                        RunDistance = s.RunDistance,
+                        RunSpeed = s.RunSpeed,
+                        SportName = s.SportName,
+                        SportTrace = s.SportTrace
+                    })
+                });
             }
             else
             {

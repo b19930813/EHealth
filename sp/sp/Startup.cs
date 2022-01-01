@@ -39,8 +39,8 @@ namespace sp
             services.AddMvc();
             services.AddDbContext<Context>(opt =>
 
-              opt.UseInMemoryDatabase("MemoryList")
-            //opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+              //opt.UseInMemoryDatabase("MemoryList")
+            opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
             );
 
             services.AddControllers();

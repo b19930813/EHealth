@@ -21,15 +21,16 @@ namespace sp.Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {    
+            
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Devices)
                 .WithOne(o => o.User)
-                .HasForeignKey(u => u.DeviceId);
+                .HasForeignKey(u => u.UserId);
 
             modelBuilder.Entity<User>()
                  .HasMany(u => u.Sports)
                  .WithOne(o => o.User)
-                 .HasForeignKey(u => u.SportId);
+                 .HasForeignKey(u => u.UserId);
         }
     }
 }
